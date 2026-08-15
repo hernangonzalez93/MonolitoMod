@@ -13,6 +13,13 @@ terraform {
       source  = "hashicorp/aws"
       version = "~> 6.0"
     }
+    # Se usa solo para leer el certificado TLS de GitHub y obtener su
+    # "thumbprint" (huella digital), necesario para crear el OIDC provider
+    # de la Fase 7 — no crea nada en AWS por sí mismo.
+    tls = {
+      source  = "hashicorp/tls"
+      version = "~> 4.0"
+    }
   }
 }
 
