@@ -43,6 +43,6 @@ Thumbs.db
 *.tfstate.*
 .terraform/
 *.tfplan
-tfplan.out
+tfplan*.out
 crash.log
 crash.*.log

@@ -6,6 +6,11 @@ resource "aws_ecr_repository" "api" {
   name                 = "${var.project_name}-api"
   image_tag_mutability = "MUTABLE" # permite reusar el tag "latest" en cada push, igual que hicimos con GHCR
 
+  # Sin esto, "terraform destroy" falla si el repo todavía tiene imágenes
+  # adentro (AWS no deja borrar un repo de ECR no vacío salvo que se fuerce).
+  # Se detectó este problema real al planear cómo destruir la Fase 6/7.
+  force_delete = true
+
   image_scanning_configuration {
     scan_on_push = true # ECR escanea vulnerabilidades automáticamente al recibir una imagen nueva (complementa al Trivy de la Fase 2)
   }
