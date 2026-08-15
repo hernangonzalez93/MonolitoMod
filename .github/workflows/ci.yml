@@ -58,7 +58,7 @@ jobs:
       # job. El resultado queda visible en GitHub > Security > Code scanning,
       # como historial, aunque no bloquee el merge.
       - name: Trivy scan (reporte completo -> Security tab)
-        uses: aquasecurity/trivy-action@0.24.0
+        uses: aquasecurity/trivy-action@v0.36.0
         with:
           image-ref: monolitomod-api:ci
           format: sarif
@@ -77,7 +77,7 @@ jobs:
       # Las HIGH quedan visibles en el Security tab (paso anterior) pero no bloquean,
       # para no frenar el aprendizaje por CVEs de la imagen base que aún no tengan fix.
       - name: Trivy scan (gate del pipeline, solo CRITICAL)
-        uses: aquasecurity/trivy-action@0.24.0
+        uses: aquasecurity/trivy-action@v0.36.0
         with:
           image-ref: monolitomod-api:ci
           format: table
