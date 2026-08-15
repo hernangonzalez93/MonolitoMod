@@ -28,7 +28,7 @@ jobs:
       # global-json-file hace que setup-dotnet lea la versión del SDK directamente
       # de global.json (10.0.302, rollForward: latestFeature) en vez de duplicar
       # el número de versión acá. Una sola fuente de verdad para la versión del SDK.
-      - uses: actions/setup-dotnet@v4
+      - uses: actions/setup-dotnet@v6
         with:
           global-json-file: global.json
 
