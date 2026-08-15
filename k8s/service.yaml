@@ -1,0 +1,18 @@
+# ClusterIP (el tipo por defecto): el Service solo es alcanzable DENTRO del
+# clúster. Para llegar a él desde el host local se usa "kubectl port-forward"
+# (ver docs/devops/04-k8s-local.md) — es la técnica universal de debugging que
+# funciona igual en cualquier clúster (Docker Desktop, EKS, etc.), a diferencia
+# de "type: LoadBalancer", que en Docker Desktop tiene un comportamiento mágico
+# específico que no se replica en otros entornos.
+apiVersion: v1
+kind: Service
+metadata:
+  name: monolitomod-api
+  namespace: monolitomod
+spec:
+  type: ClusterIP
+  selector:
+    app: monolitomod-api
+  ports:
+    - port: 80
+      targetPort: 8080

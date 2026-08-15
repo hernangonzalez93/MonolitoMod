@@ -1,0 +1,7 @@
+# Namespace dedicado en vez de usar "default": aísla los recursos de este
+# estudio del resto del clúster local y permite limpiar todo con un solo
+# "kubectl delete namespace monolitomod" sin afectar nada más.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: monolitomod
