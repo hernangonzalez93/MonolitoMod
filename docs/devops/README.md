@@ -6,7 +6,7 @@ Registro granular de cada fase del plan de estudio de CI/CD, contenedores, Kuber
 
 | Fase | Tema | Estado |
 |---|---|---|
-| [00](00-git-github.md) | Git & GitHub | 🟡 En progreso |
+| [00](00-git-github.md) | Git & GitHub | ✅ Completa |
 | 01 | Contenerizar la API (Dockerfile) | ⬜ Pendiente |
 | 02 | CI en GitHub Actions + seguridad (Trivy, Dependabot) | ⬜ Pendiente |
 | 03 | CD ligero a GitHub Container Registry | ⬜ Pendiente |
