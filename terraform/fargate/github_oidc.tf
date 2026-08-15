@@ -52,10 +52,18 @@ data "aws_iam_policy_document" "github_actions_assume_role" {
     # una rama distinta, ni un fork, ni ningún otro repo de la cuenta pueden
     # asumir este rol. Coincide a propósito con la misma condición que ya
     # usa el job "publish-ghcr" (if: push a main) en ci.yml.
+    #
+    # Los "*" son necesarios porque el "sub" real que envía GitHub incluye los
+    # IDs numéricos e inmutables del usuario/repo pegados con "@" al slug
+    # (ej: "repo:hernangonzalez93@54007107/MonolitoMod@1334918361:ref:...") —
+    # confirmado leyendo el evento real en CloudTrail tras un primer intento
+    # fallido con la condición exacta sin wildcards. Es una protección de
+    # GitHub contra reutilización del "sub" si alguien renombra su usuario o
+    # el repo más adelante.
     condition {
       test     = "StringLike"
       variable = "token.actions.githubusercontent.com:sub"
-      values   = ["repo:${var.github_repository}:ref:refs/heads/main"]
+      values   = ["repo:${split("/", var.github_repository)[0]}*/${split("/", var.github_repository)[1]}*:ref:refs/heads/main"]
     }
   }
 }

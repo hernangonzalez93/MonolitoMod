@@ -13,7 +13,7 @@ Registro granular de cada fase del plan de estudio de CI/CD, contenedores, Kuber
 | [04](04-k8s-local.md) | Kubernetes local con Docker Desktop | ✅ Completa |
 | [05](05-aws-fundamentals.md) | Fundamentos AWS (IAM, Budgets, CLI) | ✅ Completa |
 | [06](06-terraform-fargate.md) | Terraform + ECS Fargate | ✅ Completa |
-| 07 | CD a Fargate desde GitHub Actions | ⬜ Pendiente |
+| [07](07-cd-fargate.md) | CD a Fargate desde GitHub Actions | ✅ Completa |
 | 08 | Validar despliegue en Fargate | ⬜ Pendiente |
 | 09 | Persistencia con Postgres (RDS) | ⬜ Pendiente |
 | 10 | Migrar de Fargate a EKS | ⬜ Pendiente |
