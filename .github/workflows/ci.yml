@@ -1,4 +1,4 @@
-name: CI
+name: CI/CD
 
 # Se dispara en cada push a main (por si algún día se hace push directo con permisos
 # de admin) y en cada Pull Request contra main — que es el flujo real que estamos
@@ -84,3 +84,55 @@ jobs:
           severity: CRITICAL
           ignore-unfixed: true
           exit-code: "1"
+
+      # Se guarda la MISMA imagen que se acaba de escanear (no una nueva) como
+      # artifact, para que el job "publish-ghcr" la publique tal cual, sin
+      # reconstruirla. Evita una brecha entre "lo que se escaneó" y "lo que se
+      # publica" (por ejemplo, si la imagen base :10.0 recibiera una actualización
+      # entre un build y otro).
+      - name: Guardar imagen ya escaneada como artifact
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: docker save monolitomod-api:ci -o /tmp/monolitomod-api.tar
+
+      - name: Subir artifact de la imagen
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: actions/upload-artifact@v7
+        with:
+          name: docker-image
+          path: /tmp/monolitomod-api.tar
+          retention-days: 1
+
+  publish-ghcr:
+    name: publish-ghcr
+    runs-on: ubuntu-latest
+    needs: docker-scan # ya implica build-test transitivamente (docker-scan depende de él)
+    # Solo publica en push directo a main (post-merge), nunca desde un PR:
+    # una imagen "oficial" solo debe salir de código que ya está en main.
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    permissions:
+      contents: read
+      packages: write # necesario para poder hacer push al registry de paquetes (GHCR)
+    steps:
+      - name: Descargar la imagen ya escaneada
+        uses: actions/download-artifact@v8
+        with:
+          name: docker-image
+          path: /tmp
+
+      - name: Cargar la imagen en Docker
+        run: docker load -i /tmp/monolitomod-api.tar
+
+      # GITHUB_TOKEN es un token temporal que GitHub genera automáticamente para
+      # cada ejecución del workflow (expira al terminar el job) — no hace falta
+      # crear ni guardar ningún secreto manualmente para autenticarse en GHCR.
+      - name: Login en GHCR
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
+      - name: Tag y push
+        run: |
+          IMAGE="ghcr.io/${{ github.repository_owner }}/monolitomod-api"
+          SHA_TAG="${GITHUB_SHA:0:7}"
+          docker tag monolitomod-api:ci "$IMAGE:latest"
+          docker tag monolitomod-api:ci "$IMAGE:$SHA_TAG"
+          docker push "$IMAGE:latest"
+          docker push "$IMAGE:$SHA_TAG"
