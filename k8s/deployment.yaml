@@ -1,0 +1,60 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: monolitomod-api
+  namespace: monolitomod
+spec:
+  # 2 réplicas (no 1) a propósito: sirve para comprobar que el Service reparte
+  # tráfico entre varios pods, y deja una base > 1 lista para cuando la Fase 12
+  # agregue el HPA (que escala a partir de este número mínimo).
+  replicas: 2
+  selector:
+    matchLabels:
+      app: monolitomod-api
+  template:
+    metadata:
+      labels:
+        app: monolitomod-api
+    spec:
+      containers:
+        - name: monolitomod-api
+          # Imagen construida localmente con "docker build -t monolitomod-api:local .".
+          # Docker Desktop usa el mismo daemon de Docker para su Kubernetes, así que
+          # esta imagen ya es visible para el clúster sin necesidad de subirla a
+          # ningún registry.
+          image: monolitomod-api:local
+          # imagePullPolicy: Never evita que kubelet intente descargar la imagen de
+          # un registry remoto (fallaría: "monolitomod-api:local" no existe en
+          # ningún registry, solo en el daemon local). Es la forma estándar de
+          # probar manifiestos contra una imagen local en Docker Desktop.
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 8080
+          # requests/limits: además de ser buena práctica (evita que un pod acapare
+          # todo el nodo), son OBLIGATORIOS para que el HPA de la Fase 12 pueda
+          # calcular el % de uso de CPU contra algo — sin "requests.cpu" definido,
+          # el autoescalado por CPU no tiene una base de referencia.
+          resources:
+            requests:
+              cpu: 50m
+              memory: 64Mi
+            limits:
+              cpu: 200m
+              memory: 128Mi
+          # readinessProbe: si /health no responde, el pod se saca temporalmente de
+          # los endpoints del Service (no recibe tráfico) sin reiniciarlo.
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 2
+            periodSeconds: 5
+          # livenessProbe: si /health falla de forma sostenida, Kubernetes reinicia
+          # el contenedor. initialDelaySeconds más alto que el readiness para no
+          # matar el pod mientras todavía está arrancando.
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 10
+            periodSeconds: 10

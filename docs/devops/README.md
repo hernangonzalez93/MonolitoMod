@@ -10,7 +10,7 @@ Registro granular de cada fase del plan de estudio de CI/CD, contenedores, Kuber
 | [01](01-dockerfile.md) | Contenerizar la API (Dockerfile) | ✅ Completa |
 | [02](02-ci-security.md) | CI en GitHub Actions + seguridad (Trivy, CodeQL, Dependabot) | ✅ Completa |
 | [03](03-cd-ghcr.md) | CD ligero a GitHub Container Registry | ✅ Completa |
-| 04 | Kubernetes local con Docker Desktop | ⬜ Pendiente |
+| [04](04-k8s-local.md) | Kubernetes local con Docker Desktop | ✅ Completa |
 | 05 | Fundamentos AWS (IAM, Budgets, CLI) | ⬜ Pendiente |
 | 06 | Terraform + ECS Fargate | ⬜ Pendiente |
 | 07 | CD a Fargate desde GitHub Actions | ⬜ Pendiente |
