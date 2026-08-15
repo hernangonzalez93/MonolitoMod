@@ -45,9 +45,56 @@ git log --oneline
 git status   # debe mostrar "nothing to commit, working tree clean"
 ```
 
-## Pendiente / próximo paso
+## Parte 2 — Publicación en GitHub y branch protection
 
-- [ ] Autenticar GitHub CLI: `gh auth login` (requiere interacción del usuario en navegador — no se puede automatizar).
-- [ ] Decidir nombre y visibilidad del repositorio en GitHub.
-- [ ] `gh repo create` + `git push`.
-- [ ] Branch protection sobre `main`: al menos "require PR before merging" desde ahora; "require status checks" se añade en la Fase 2, una vez exista el workflow de CI.
+### Decisiones
+
+- **Repositorio**: `hernangonzalez93/MonolitoMod`, público. Repo de portafolio de este estudio de CI/CD.
+- **Autenticación**: `gh auth login` es un flujo OAuth interactivo por navegador — lo ejecutó el usuario directamente, no algo automatizable por el asistente. Se verificó con `gh auth status` (cuenta `hernangonzalez93`, scopes `repo`, `workflow`, `read:org`, `gist` — el scope `workflow` es imprescindible para más adelante, cuando se empiecen a versionar archivos en `.github/workflows/`, GitHub lo exige explícitamente).
+- **Rama por defecto**: se renombró `master` → `main` localmente *antes* de crear el repo remoto, para que quedara publicada directamente como `main` (evita un paso extra de renombrar en GitHub después).
+- **Branch protection sobre `main`**: se activó vía API (`gh api`) en vez de la UI web, para que quedara reproducible y documentado como comando. Configuración elegida:
+  - `required_pull_request_reviews.required_approving_review_count: 0` → obliga a que todo cambio llegue por Pull Request (no se puede hacer `git push` directo a `main`), pero **no exige que alguien más apruebe** el PR. Esto es intencional: siendo el único colaborador, exigir 1 aprobación bloquearía cualquier merge (GitHub no permite auto-aprobar tu propio PR). El valor `0` sí es aceptado por la API — se confirmó empíricamente con la llamada real, sin asumirlo de memoria.
+  - `required_status_checks: null` → todavía no hay CI, así que no hay checks que exigir. **Se debe revisar y actualizar esta fase cuando exista el workflow de la Fase 2**, añadiendo el job de build/test como check obligatorio.
+  - `enforce_admins: false` → como dueño del repo, el usuario puede seguir haciendo bypass manual si hace falta (por ejemplo, un hotfix urgente). Se puede endurecer más adelante.
+  - `allow_force_pushes: false`, `allow_deletions: false` → quedan bloqueados por defecto al activar protección, sin configurarlo explícitamente.
+
+### Comandos ejecutados
+
+```bash
+# Verificar autenticación
+gh auth status
+
+# Renombrar la rama local antes de publicar
+git branch -m master main
+
+# Crear el repo en GitHub, configurar el remoto 'origin' y hacer push en un solo paso
+gh repo create MonolitoMod --public --source=. --remote=origin --push
+
+# Activar branch protection sobre main (PR obligatorio, sin aprobaciones mínimas)
+gh api -X PUT repos/hernangonzalez93/MonolitoMod/branches/main/protection --input - <<'EOF'
+{
+  "required_status_checks": null,
+  "enforce_admins": false,
+  "required_pull_request_reviews": {
+    "required_approving_review_count": 0,
+    "dismiss_stale_reviews": false,
+    "require_code_owner_reviews": false
+  },
+  "restrictions": null
+}
+EOF
+```
+
+### Verificación
+
+```bash
+gh repo view hernangonzalez93/MonolitoMod --web   # abre el repo en el navegador
+gh api repos/hernangonzalez93/MonolitoMod/branches/main/protection   # confirma la config activa
+```
+
+Resultado esperado: `git push origin main` directo (sin PR) debe ser rechazado por GitHub a partir de este punto; los cambios deben llegar vía rama + Pull Request.
+
+## Pendientes / notas para la siguiente fase
+
+- [ ] **Fase 2**: cuando exista el workflow de CI, volver a esta configuración de branch protection y añadir el job correspondiente en `required_status_checks.contexts`, para que un PR no se pueda mergear si el build/test falla.
+- [ ] A partir de ahora, todo cambio (incluyendo el Dockerfile de la Fase 1) debe hacerse en una rama feature + PR, no directo a `main` — es el flujo que la protección ya está forzando.
