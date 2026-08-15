@@ -1,0 +1,21 @@
+version: 2
+updates:
+  # Paquetes NuGet (todos los .csproj del repo, restauración centralizada)
+  - package-ecosystem: "nuget"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 10
+
+  # Versiones de las Actions usadas en .github/workflows/*.yml
+  # (incluye aquasecurity/trivy-action y github/codeql-action pineados en ci.yml)
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+
+  # Imágenes base del Dockerfile (mcr.microsoft.com/dotnet/sdk:10.0 y aspnet:10.0)
+  - package-ecosystem: "docker"
+    directory: "/"
+    schedule:
+      interval: "weekly"

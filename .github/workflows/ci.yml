@@ -1,0 +1,86 @@
+name: CI
+
+# Se dispara en cada push a main (por si algún día se hace push directo con permisos
+# de admin) y en cada Pull Request contra main — que es el flujo real que estamos
+# usando desde la Fase 0, gracias a la branch protection.
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch: # permite disparar el workflow a mano desde la pestaña Actions
+
+# Permisos mínimos necesarios (principio de menor privilegio):
+# - contents: read -> hace falta para "actions/checkout"
+# - security-events: write -> hace falta para subir el reporte de Trivy al tab de
+#   Security de GitHub ("code scanning alerts")
+permissions:
+  contents: read
+  security-events: write
+
+jobs:
+  build-test:
+    name: build-test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # global-json-file hace que setup-dotnet lea la versión del SDK directamente
+      # de global.json (10.0.302, rollForward: latestFeature) en vez de duplicar
+      # el número de versión acá. Una sola fuente de verdad para la versión del SDK.
+      - uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+
+      - name: Restore
+        run: dotnet restore MonolitoMod.slnx
+
+      - name: Build (Release)
+        run: dotnet build MonolitoMod.slnx --no-restore -c Release
+
+      # Corre las 4 pruebas del repo: 2 unitarias (Inventory, Notifications) +
+      # 1 de integración (levanta la API completa vía WebApplicationFactory).
+      - name: Test
+        run: dotnet test MonolitoMod.slnx --no-build -c Release
+
+  docker-scan:
+    name: docker-scan
+    runs-on: ubuntu-latest
+    needs: build-test # no tiene sentido escanear una imagen si el código ni compila/pasa tests
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build image
+        run: docker build -t monolitomod-api:ci .
+
+      # Primera pasada: reporta TODAS las vulnerabilidades CRITICAL/HIGH encontradas
+      # (en el SO base de la imagen y en las librerías) como SARIF, sin fallar el
+      # job. El resultado queda visible en GitHub > Security > Code scanning,
+      # como historial, aunque no bloquee el merge.
+      - name: Trivy scan (reporte completo -> Security tab)
+        uses: aquasecurity/trivy-action@v0.36.0
+        with:
+          image-ref: monolitomod-api:ci
+          format: sarif
+          output: trivy-results.sarif
+          severity: CRITICAL,HIGH
+          ignore-unfixed: true # ignora CVEs para las que todavía no existe parche disponible
+          exit-code: "0"
+
+      - name: Upload Trivy results to GitHub Security tab
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: trivy-results.sarif
+
+      # Segunda pasada: esta es la que realmente actúa como gate del pipeline.
+      # Solo falla el build ante vulnerabilidades CRITICAL con parche disponible.
+      # Las HIGH quedan visibles en el Security tab (paso anterior) pero no bloquean,
+      # para no frenar el aprendizaje por CVEs de la imagen base que aún no tengan fix.
+      - name: Trivy scan (gate del pipeline, solo CRITICAL)
+        uses: aquasecurity/trivy-action@v0.36.0
+        with:
+          image-ref: monolitomod-api:ci
+          format: table
+          severity: CRITICAL
+          ignore-unfixed: true
+          exit-code: "1"
