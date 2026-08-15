@@ -1,0 +1,19 @@
+# Build artifacts (pueden existir en disco desde builds locales en Visual Studio;
+# si no se excluyen, se copiarían al contexto de build y contaminarían el contenedor
+# con binarios de Windows / metadata de restore obsoleta)
+**/bin/
+**/obj/
+
+# Control de versiones y editor
+.git/
+.vs/
+.idea/
+.vscode/
+
+# Documentación y tests: no hacen falta dentro de la imagen de runtime
+docs/
+tests/
+*.md
+
+# Resultados de test
+**/TestResults/
