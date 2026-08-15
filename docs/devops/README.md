@@ -1,0 +1,31 @@
+# Diario de CI/CD — MonolitoMod
+
+Registro granular de cada fase del plan de estudio de CI/CD, contenedores, Kubernetes y AWS aplicado a este proyecto. Cada fase tiene su propio documento con: qué se hizo, por qué, comandos exactos ejecutados, decisiones tomadas y cómo verificar/reproducir el resultado.
+
+## Índice de fases
+
+| Fase | Tema | Estado |
+|---|---|---|
+| [00](00-git-github.md) | Git & GitHub | 🟡 En progreso |
+| 01 | Contenerizar la API (Dockerfile) | ⬜ Pendiente |
+| 02 | CI en GitHub Actions + seguridad (Trivy, Dependabot) | ⬜ Pendiente |
+| 03 | CD ligero a GitHub Container Registry | ⬜ Pendiente |
+| 04 | Kubernetes local con Docker Desktop | ⬜ Pendiente |
+| 05 | Fundamentos AWS (IAM, Budgets, CLI) | ⬜ Pendiente |
+| 06 | Terraform + ECS Fargate | ⬜ Pendiente |
+| 07 | CD a Fargate desde GitHub Actions | ⬜ Pendiente |
+| 08 | Validar despliegue en Fargate | ⬜ Pendiente |
+| 09 | Persistencia con Postgres (RDS) | ⬜ Pendiente |
+| 10 | Migrar de Fargate a EKS | ⬜ Pendiente |
+| 11 | ArgoCD (GitOps) sobre EKS | ⬜ Pendiente |
+| 12 | Autoescalado horizontal (HPA) | ⬜ Pendiente |
+
+## Cómo usar este diario
+
+Cada archivo `NN-nombre-fase.md` sigue la misma estructura:
+- **Objetivo**: qué se busca aprender/lograr en la fase.
+- **Contexto/decisiones**: por qué se eligió tal enfoque sobre otro.
+- **Pasos ejecutados**: comandos reales corridos, en orden, con explicación de cada uno.
+- **Archivos creados/modificados**: lista con propósito de cada uno.
+- **Verificación**: cómo confirmar que la fase funcionó.
+- **Pendientes/notas para la siguiente fase**.
