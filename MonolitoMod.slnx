@@ -1,0 +1,19 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/MonolitoMod.Api/MonolitoMod.Api.csproj" />
+    <Project Path="src/MonolitoMod.Contracts/MonolitoMod.Contracts.csproj" />
+    <Project Path="src/MonolitoMod.EventBus/MonolitoMod.EventBus.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/" />
+  <Folder Name="/src/Modules/Inventory/">
+    <Project Path="src/Modules/Inventory/MonolitoMod.Inventory/MonolitoMod.Inventory.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/Notifications/">
+    <Project Path="src/Modules/Notifications/MonolitoMod.Notifications/MonolitoMod.Notifications.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/MonolitoMod.Api.IntegrationTests/MonolitoMod.Api.IntegrationTests.csproj" />
+    <Project Path="tests/MonolitoMod.Inventory.UnitTests/MonolitoMod.Inventory.UnitTests.csproj" />
+    <Project Path="tests/MonolitoMod.Notifications.UnitTests/MonolitoMod.Notifications.UnitTests.csproj" />
+  </Folder>
+</Solution>

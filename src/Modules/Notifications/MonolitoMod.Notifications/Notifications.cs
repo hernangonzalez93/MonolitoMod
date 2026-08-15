@@ -1,0 +1,9 @@
+using System.Collections.Concurrent;
+using Microsoft.Extensions.DependencyInjection;
+using MonolitoMod.Contracts.Purchases;
+using MonolitoMod.EventBus.Abstractions;
+namespace MonolitoMod.Notifications.Domain { public sealed record PurchaseConfirmationNotification(Guid PurchaseId, string RecipientEmail, DateTimeOffset CreatedOnUtc); }
+namespace MonolitoMod.Notifications.Application { public interface INotificationStore { void Record(Domain.PurchaseConfirmationNotification notification); IReadOnlyCollection<Domain.PurchaseConfirmationNotification> GetAll(); } }
+namespace MonolitoMod.Notifications.Infrastructure { public sealed class InMemoryNotificationStore : Application.INotificationStore { private readonly ConcurrentQueue<Domain.PurchaseConfirmationNotification> notifications = new(); public void Record(Domain.PurchaseConfirmationNotification notification) => notifications.Enqueue(notification); public IReadOnlyCollection<Domain.PurchaseConfirmationNotification> GetAll() => notifications.ToArray(); } }
+namespace MonolitoMod.Notifications.Application.PurchaseCreated { public sealed class SendPurchaseConfirmationHandler(Application.INotificationStore store) : IIntegrationEventHandler<PurchaseCreatedEvent> { public Task HandleAsync(PurchaseCreatedEvent @event, CancellationToken cancellationToken) { store.Record(new Domain.PurchaseConfirmationNotification(@event.PurchaseId, @event.CustomerEmail, DateTimeOffset.UtcNow)); return Task.CompletedTask; } } }
+namespace MonolitoMod.Notifications.DependencyInjection { public static class NotificationsModuleExtensions { public static IServiceCollection AddNotificationsModule(this IServiceCollection services) { services.AddSingleton<Application.INotificationStore, Infrastructure.InMemoryNotificationStore>(); services.AddTransient<IIntegrationEventHandler<PurchaseCreatedEvent>, Application.PurchaseCreated.SendPurchaseConfirmationHandler>(); return services; } } }

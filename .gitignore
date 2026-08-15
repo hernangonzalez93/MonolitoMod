@@ -1,0 +1,44 @@
+# Build outputs
+[Bb]in/
+[Oo]bj/
+[Oo]ut/
+
+# Visual Studio
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Rider / JetBrains
+.idea/
+*.sln.iml
+
+# VS Code
+.vscode/
+
+# Test results
+[Tt]est[Rr]esult*/
+*.trx
+*.coverage
+*.coveragexml
+
+# NuGet
+*.nupkg
+**/packages/*
+!**/packages/build/
+
+# Publish output
+[Pp]ublish/
+*.pubxml
+
+# macOS / Windows OS files
+.DS_Store
+Thumbs.db
+
+# Environment / secrets (to be used from Phase 6+ with local .env files, Terraform, etc.)
+*.env
+.env.local
+*.tfstate
+*.tfstate.*
+.terraform/

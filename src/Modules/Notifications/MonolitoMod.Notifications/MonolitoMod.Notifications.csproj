@@ -1,0 +1,1 @@
+<Project Sdk="Microsoft.NET.Sdk"><ItemGroup><ProjectReference Include="../../../MonolitoMod.Contracts/MonolitoMod.Contracts.csproj" /><ProjectReference Include="../../../MonolitoMod.EventBus/MonolitoMod.EventBus.csproj" /><FrameworkReference Include="Microsoft.AspNetCore.App" /></ItemGroup></Project>
