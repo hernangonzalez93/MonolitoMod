@@ -8,7 +8,7 @@ Registro granular de cada fase del plan de estudio de CI/CD, contenedores, Kuber
 |---|---|---|
 | [00](00-git-github.md) | Git & GitHub | ✅ Completa |
 | [01](01-dockerfile.md) | Contenerizar la API (Dockerfile) | ✅ Completa |
-| 02 | CI en GitHub Actions + seguridad (Trivy, Dependabot) | ⬜ Pendiente |
+| [02](02-ci-security.md) | CI en GitHub Actions + seguridad (Trivy, CodeQL, Dependabot) | ✅ Completa |
 | 03 | CD ligero a GitHub Container Registry | ⬜ Pendiente |
 | 04 | Kubernetes local con Docker Desktop | ⬜ Pendiente |
 | 05 | Fundamentos AWS (IAM, Budgets, CLI) | ⬜ Pendiente |
