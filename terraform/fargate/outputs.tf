@@ -20,3 +20,8 @@ output "ecs_cluster_name" {
 output "ecs_service_name" {
   value = aws_ecs_service.api.name
 }
+
+output "github_actions_role_arn" {
+  description = "Rol que GitHub Actions asume via OIDC para desplegar (Fase 7)"
+  value       = aws_iam_role.github_actions_deploy.arn
+}

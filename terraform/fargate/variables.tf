@@ -35,3 +35,9 @@ variable "fargate_memory" {
   type        = string
   default     = "512"
 }
+
+variable "github_repository" {
+  description = "Repo de GitHub (owner/nombre) autorizado a asumir el rol de deploy via OIDC"
+  type        = string
+  default     = "hernangonzalez93/MonolitoMod"
+}
