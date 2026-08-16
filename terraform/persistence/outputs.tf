@@ -20,6 +20,15 @@ output "rds_endpoint" {
   value       = aws_db_instance.this.endpoint
 }
 
+output "rds_address" {
+  description = "Solo el host (sin puerto) — usado por el Lambda para armar la connection string"
+  value       = aws_db_instance.this.address
+}
+
+output "rds_port" {
+  value = aws_db_instance.this.port
+}
+
 output "rds_secret_arn" {
   description = "ARN del secreto en Secrets Manager con las credenciales (generado por RDS)"
   value       = aws_db_instance.this.master_user_secret[0].secret_arn
@@ -39,4 +48,8 @@ output "sqs_queue_arn" {
 
 output "sqs_dlq_arn" {
   value = aws_sqs_queue.purchases_dlq.arn
+}
+
+output "lambda_function_name" {
+  value = aws_lambda_function.purchase_persister.function_name
 }

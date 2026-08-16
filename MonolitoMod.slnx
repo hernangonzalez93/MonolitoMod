@@ -11,6 +11,9 @@
   <Folder Name="/src/Modules/Notifications/">
     <Project Path="src/Modules/Notifications/MonolitoMod.Notifications/MonolitoMod.Notifications.csproj" />
   </Folder>
+  <Folder Name="/src/Lambda/">
+    <Project Path="src/Lambda/MonolitoMod.Lambda.PurchasePersister/MonolitoMod.Lambda.PurchasePersister.csproj" />
+  </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/MonolitoMod.Api.IntegrationTests/MonolitoMod.Api.IntegrationTests.csproj" />
     <Project Path="tests/MonolitoMod.Inventory.UnitTests/MonolitoMod.Inventory.UnitTests.csproj" />

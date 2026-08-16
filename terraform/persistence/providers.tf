@@ -11,6 +11,13 @@ terraform {
       source  = "hashicorp/aws"
       version = "~> 6.0"
     }
+    # Solo para empaquetar el .zip del Lambda a partir de la carpeta ya
+    # publicada con "dotnet publish" (paso manual, ver Fase 12) — no crea
+    # nada en AWS por sí mismo.
+    archive = {
+      source  = "hashicorp/archive"
+      version = "~> 2.0"
+    }
   }
 }
 
