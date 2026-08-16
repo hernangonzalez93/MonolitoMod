@@ -16,10 +16,16 @@ Registro granular de cada fase del plan de estudio de CI/CD, contenedores, Kuber
 | [07](07-cd-fargate.md) | CD a Fargate desde GitHub Actions | ✅ Completa |
 | [08](08-validar-fargate.md) | Validar despliegue en Fargate | ✅ Completa |
 | [08b](08b-destroy-fargate.md) | *(addendum)* Destruir y recrear la infra de Fargate | ✅ Completa |
-| 09 | Persistencia con Postgres (RDS) — requiere `terraform apply` primero, ver 08b | ⬜ Pendiente |
-| 10 | Migrar de Fargate a EKS | ⬜ Pendiente |
-| 11 | ArgoCD (GitOps) sobre EKS | ⬜ Pendiente |
-| 12 | Autoescalado horizontal (HPA) | ⬜ Pendiente |
+| [09](09-vpc-persistencia.md) | VPC privada para persistencia (RDS + Lambda) | ✅ Completa |
+| 10 | RDS Postgres | ⬜ Pendiente |
+| 11 | SQS | ⬜ Pendiente |
+| 12 | Lambda consumidor de SQS | ⬜ Pendiente |
+| 13 | Validar el flujo async end-to-end | ⬜ Pendiente |
+| 14 | Migrar de Fargate a EKS | ⬜ Pendiente |
+| 15 | ArgoCD (GitOps) sobre EKS | ⬜ Pendiente |
+| 16 | Autoescalado horizontal (HPA) | ⬜ Pendiente |
+
+> **Nota**: la Fase 9 original (una sola fase de "Postgres directo vía EF Core") se replanteó a pedido explícito del usuario en favor de un pipeline async: API → SQS → Lambda → RDS. El bus en memoria (Inventory/Notifications) no se toca — SQS/Lambda se suman como un tercer consumidor. Detalle de la decisión en 09-vpc-persistencia.md.
 
 ## Cómo usar este diario
 
