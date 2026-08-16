@@ -26,6 +26,32 @@ El Lambda lee `DB_SECRET_ARN` (Fase 10) y arma la connection string en el primer
 
 Con un batch más grande, una excepción en un solo mensaje reintentaría el lote entero (a menos que se implemente "partial batch response", más complejo de manejar). Con `batch_size = 1`, el radio de una falla queda acotado a ese mensaje puntual — trade-off consciente de simplicidad sobre throughput, razonable para el volumen de este estudio.
 
+### Cómo se genera el artefacto de despliegue (dos pasos, no uno)
+
+A diferencia de Fargate (donde `docker build` compila y empaqueta en un solo comando), el Lambda se arma en **dos pasos, en dos herramientas distintas**, sin nada automático conectándolos:
+
+1. **`dotnet publish`** (manual) compila el C# y deja las DLLs + `.runtimeconfig.json` sueltas en `src/Lambda/MonolitoMod.Lambda.PurchasePersister/publish/`. Este es el primer artefacto: el resultado crudo del build, todavía sin empaquetar.
+
+2. **`data "archive_file" "lambda"`** en `terraform/persistence/lambda.tf` — un *data source* de Terraform (no un `resource`: no crea nada en AWS). Corre **localmente**, en el momento en que se ejecuta `terraform plan`/`apply`, y comprime lo que en ese instante haya en `publish/` hacia `terraform/persistence/build/purchase-persister.zip`. Este .zip es el segundo artefacto, el que realmente sube a AWS.
+
+```hcl
+data "archive_file" "lambda" {
+  type        = "zip"
+  source_dir  = "${path.module}/../../src/Lambda/MonolitoMod.Lambda.PurchasePersister/publish"
+  output_path = "${path.module}/build/purchase-persister.zip"
+}
+
+resource "aws_lambda_function" "purchase_persister" {
+  filename         = data.archive_file.lambda.output_path
+  source_code_hash = data.archive_file.lambda.output_base64sha256
+  # ...
+}
+```
+
+`source_code_hash` es el SHA256 del contenido del .zip. En cada `terraform plan`, Terraform recalcula ese hash contra lo que hay en `publish/` en ese momento y lo compara con el que quedó guardado en el state la última vez que se aplicó — si difieren, el plan muestra `1 to change` y `apply` sube el .zip nuevo (exactamente lo que pasó al corregir el incidente de abajo). Si no cambió nada, ni se molesta en resubirlo.
+
+**El detalle importante, para no pisarse en el futuro**: Terraform no compila C# ni le importa si el código fuente cambió — solo compara el contenido de `publish/`. Si se edita `Function.cs` y se corre `terraform apply` directo, **sin volver a correr `dotnet publish` antes**, Terraform re-empaqueta y "actualiza" la función con el código *viejo*, sin ninguna advertencia — porque desde su perspectiva, `publish/` no cambió. El orden manual (`dotnet publish` → recién después `terraform plan`/`apply`) es una disciplina que hay que sostener a mano, el tooling no la garantiza. Esto es justo lo que en la Fase 7 se resolvió para Fargate automatizando todo con CI/CD (GitHub Actions siempre reconstruye desde cero antes de desplegar); el Lambda todavía no tiene ese pipeline — quedó manual, igual que Fargate estaba antes de la Fase 7 — y sería una automatización natural a agregar más adelante.
+
 ## Incidente real: `.runtimeconfig.json` faltante — el Lambda no arrancaba
 
 Primer despliegue: el Lambda fallaba en **todas** las invocaciones, incluso antes de llegar al código propio:
