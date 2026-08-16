@@ -24,3 +24,19 @@ output "rds_secret_arn" {
   description = "ARN del secreto en Secrets Manager con las credenciales (generado por RDS)"
   value       = aws_db_instance.this.master_user_secret[0].secret_arn
 }
+
+output "sqs_queue_name" {
+  value = aws_sqs_queue.purchases.name
+}
+
+output "sqs_queue_url" {
+  value = aws_sqs_queue.purchases.url
+}
+
+output "sqs_queue_arn" {
+  value = aws_sqs_queue.purchases.arn
+}
+
+output "sqs_dlq_arn" {
+  value = aws_sqs_queue.purchases_dlq.arn
+}

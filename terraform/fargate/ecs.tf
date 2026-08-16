@@ -27,6 +27,9 @@ resource "aws_ecs_task_definition" "api" {
   cpu                = var.fargate_cpu
   memory             = var.fargate_memory
   execution_role_arn = aws_iam_role.ecs_task_execution.arn
+  # task_role_arn (Fase 11): el permiso que usa la APLICACIÓN (sqs:SendMessage),
+  # distinto del execution_role_arn de arriba (que usa el agente de ECS).
+  task_role_arn = aws_iam_role.ecs_task.arn
 
   container_definitions = jsonencode([
     {
@@ -38,6 +41,23 @@ resource "aws_ecs_task_definition" "api" {
         {
           containerPort = var.container_port
           protocol      = "tcp"
+        }
+      ]
+      # SQS_QUEUE_URL: la API la lee en runtime (Program.cs) para saber a
+      # dónde publicar. Se resuelve automáticamente vía el data source de
+      # iam.tf — no está hardcodeada acá.
+      # AWS_REGION: explícito a propósito, para no depender de si Fargate lo
+      # setea solo — el SDK de AWS para .NET sí lo resuelve automáticamente
+      # si la variable existe, pero no está garantizado que ECS la agregue
+      # por su cuenta (a diferencia de Lambda, donde sí es automático).
+      environment = [
+        {
+          name  = "SQS_QUEUE_URL"
+          value = data.aws_sqs_queue.purchases.url
+        },
+        {
+          name  = "AWS_REGION"
+          value = var.aws_region
         }
       ]
       logConfiguration = {
