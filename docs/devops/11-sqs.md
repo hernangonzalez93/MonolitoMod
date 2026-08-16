@@ -4,6 +4,17 @@
 
 La API publica cada compra también a una cola SQS, como un tercer consumidor del evento independiente del bus en memoria (Inventory/Notifications, sin tocar) — el primer eslabón del pipeline async que el Lambda de la Fase 12 va a completar.
 
+## Incidente real: pasaba local, falló en CI — y con razón
+
+Con el primer intento (`AddSingleton<IAmazonSQS>(new AmazonSQSClient())`), `dotnet test` pasaba en esta máquina pero falló en el runner de GitHub Actions con:
+```
+Amazon.Runtime.AmazonClientException : No RegionEndpoint or ServiceURL configured
+```
+
+`new AmazonSQSClient()` se ejecuta de forma **inmediata**, en el momento de registrar el singleton — no cuando alguien realmente pide `IAmazonSQS`. Localmente "funcionaba" solo porque el SDK de AWS encontró una región en `~/.aws/config` (configurado en la Fase 5 con `aws configure`) y la usó sin que nadie se lo pidiera explícitamente. El runner de GitHub Actions no tiene ese archivo — no hay ninguna razón para que lo tenga, ese job nunca toca AWS — así que la construcción fallaba ahí mismo, al arrancar el host de test.
+
+Esto es, en los hechos, la razón de ser de CI: expuso una dependencia oculta de mi entorno local que el código no debería haber tenido. **Fix**: registrar una fábrica en vez de una instancia (`AddSingleton<IAmazonSQS>(_ => new AmazonSQSClient())`), para que la construcción quede diferida hasta el primer uso real — en el host de test, como `IPurchaseEventPublisher` está reemplazado por el fake, `IAmazonSQS` nunca llega a resolverse ni a construirse.
+
 ## Contexto/decisiones
 
 ### Cola principal + Dead-Letter Queue

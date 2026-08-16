@@ -10,13 +10,19 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddInMemoryEventBus();
 builder.Services.AddInventoryModule();
 builder.Services.AddNotificationsModule();
-// AmazonSQSClient() sin argumentos resuelve credenciales vía el task role de
-// ECS (Fase 11, terraform/fargate/iam.tf) y la región vía la variable de
-// entorno AWS_REGION (seteada explícitamente en la task definition) —
-// mismo mecanismo con el que ya veníamos autenticando aws/terraform
-// localmente (Fase 5), solo que acá la identidad es la del task role, no un
-// usuario IAM.
-builder.Services.AddSingleton<IAmazonSQS>(new AmazonSQSClient());
+// Fábrica, no instancia directa: "new AmazonSQSClient()" se ejecutaría de
+// inmediato al registrar el singleton, incluso si nada lo llega a usar. En
+// el host de test (PurchaseEndpointTests) IPurchaseEventPublisher se
+// reemplaza por un fake, así que IAmazonSQS nunca se resuelve — pero con
+// una instancia directa igual explotaría al arrancar, porque el SDK
+// necesita región/credenciales para construirse. Con una fábrica, la
+// construcción queda diferida hasta el primer uso real.
+// En runtime resuelve credenciales vía el task role de ECS (Fase 11,
+// terraform/fargate/iam.tf) y la región vía la variable de entorno
+// AWS_REGION (seteada explícitamente en la task definition) — mismo
+// mecanismo con el que ya veníamos autenticando aws/terraform localmente
+// (Fase 5), solo que acá la identidad es la del task role, no un usuario IAM.
+builder.Services.AddSingleton<IAmazonSQS>(_ => new AmazonSQSClient());
 builder.Services.AddSingleton<IPurchaseEventPublisher, SqsPurchaseEventPublisher>();
 var app = builder.Build();
 app.MapGet("/health", () => Results.Ok(new { status = "healthy" }));
