@@ -46,3 +46,4 @@ Thumbs.db
 tfplan*.out
 crash.log
 crash.*.log
+terraform/**/build/

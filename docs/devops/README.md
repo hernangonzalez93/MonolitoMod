@@ -19,7 +19,7 @@ Registro granular de cada fase del plan de estudio de CI/CD, contenedores, Kuber
 | [09](09-vpc-persistencia.md) | VPC privada para persistencia (RDS + Lambda) | ✅ Completa |
 | [10](10-rds-postgres.md) | RDS Postgres | ✅ Completa |
 | [11](11-sqs.md) | SQS | ✅ Completa |
-| 12 | Lambda consumidor de SQS | ⬜ Pendiente |
+| [12](12-lambda.md) | Lambda consumidor de SQS | ✅ Completa |
 | 13 | Validar el flujo async end-to-end | ⬜ Pendiente |
 | 14 | Migrar de Fargate a EKS | ⬜ Pendiente |
 | 15 | ArgoCD (GitOps) sobre EKS | ⬜ Pendiente |
