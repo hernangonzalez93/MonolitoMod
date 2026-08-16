@@ -41,3 +41,16 @@ variable "github_repository" {
   type        = string
   default     = "hernangonzalez93/MonolitoMod"
 }
+
+# Este módulo (terraform/fargate/) y terraform/persistence/ tienen states
+# separados (ver Fase 9) — no hay forma automática de que uno sepa qué creó
+# el otro. En vez de usar "terraform_remote_state" (otro concepto a
+# introducir), se resuelve con un data source que busca la cola POR NOMBRE
+# en la Fase 11 — el nombre es predecible porque lo controlamos nosotros en
+# ambos lados (acá, y en terraform/persistence/variables.tf: project_name +
+# "-purchases").
+variable "sqs_queue_name" {
+  description = "Nombre de la cola SQS (creada en terraform/persistence/) a la que la API publica"
+  type        = string
+  default     = "monolitomod-data-purchases"
+}
