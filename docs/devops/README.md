@@ -17,7 +17,7 @@ Registro granular de cada fase del plan de estudio de CI/CD, contenedores, Kuber
 | [08](08-validar-fargate.md) | Validar despliegue en Fargate | ✅ Completa |
 | [08b](08b-destroy-fargate.md) | *(addendum)* Destruir y recrear la infra de Fargate | ✅ Completa |
 | [09](09-vpc-persistencia.md) | VPC privada para persistencia (RDS + Lambda) | ✅ Completa |
-| 10 | RDS Postgres | ⬜ Pendiente |
+| [10](10-rds-postgres.md) | RDS Postgres | ✅ Completa |
 | 11 | SQS | ⬜ Pendiente |
 | 12 | Lambda consumidor de SQS | ⬜ Pendiente |
 | 13 | Validar el flujo async end-to-end | ⬜ Pendiente |

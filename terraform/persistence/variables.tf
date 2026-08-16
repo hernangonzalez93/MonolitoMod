@@ -27,3 +27,36 @@ variable "private_subnet_cidrs" {
   type        = list(string)
   default     = ["10.0.1.0/24", "10.0.2.0/24"]
 }
+
+# db.t4g.micro (Graviton/ARM): la clase mas chica y barata disponible para
+# Postgres en RDS. Verificado que esta disponible para la version elegida
+# con "aws rds describe-orderable-db-instance-options" antes de escribir esto.
+variable "db_instance_class" {
+  description = "Clase de instancia de RDS"
+  type        = string
+  default     = "db.t4g.micro"
+}
+
+# Solo el major version: deja que AWS elija/actualice el minor automaticamente
+# (mismo criterio que usamos con "~> 6.0" para providers o "v6" para Actions).
+# Verificado que "18" es la ultima major disponible con
+# "aws rds describe-db-engine-versions" antes de escribir esto.
+variable "db_engine_version" {
+  description = "Version mayor de Postgres"
+  type        = string
+  default     = "18"
+}
+
+# Nombre de la base de datos en si (no del recurso) — Postgres no permite
+# guiones en este campo, por eso no reusa "project_name" tal cual.
+variable "db_name" {
+  description = "Nombre de la base de datos"
+  type        = string
+  default     = "monolitomod"
+}
+
+variable "db_username" {
+  description = "Usuario administrador de la base"
+  type        = string
+  default     = "monolitomod_admin"
+}
