@@ -33,7 +33,7 @@ RUN dotnet publish src/MonolitoMod.Api/MonolitoMod.Api.csproj \
 
 # Etapa 2 — final: imagen runtime, sin SDK, sin código fuente, mucho más liviana (~200MB).
 # Es lo único que termina en el registry y en producción.
-FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS final
+FROM mcr.microsoft.com/dotnet/aspnet:11.0 AS final
 WORKDIR /app
 
 # La imagen base ya expone el puerto 8080 y define ASPNETCORE_HTTP_PORTS=8080
