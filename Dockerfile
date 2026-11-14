@@ -1,6 +1,6 @@
 # Etapa 1 — build: usa el SDK completo (pesado, ~800MB) solo para compilar/publicar.
 # Esta imagen nunca llega a producción, se descarta al final.
-FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
+FROM mcr.microsoft.com/dotnet/sdk:11.0 AS build
 WORKDIR /src
 
 # --- Paso 1: copiar SOLO lo necesario para "dotnet restore" ---
